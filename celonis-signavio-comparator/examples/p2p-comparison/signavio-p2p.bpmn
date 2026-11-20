@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_Signavio_P2P"
+                  targetNamespace="http://signavio.com/bpmn20"
+                  exporter="SAP Signavio Process Manager"
+                  exporterVersion="16.8.0">
+  <bpmn:process id="Process_Signavio_P2P" name="Purchase-to-Pay Standard Process" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Purchase Demand Identified">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_PR" name="Create Purchase Requisition">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_PO" name="Create PO Item">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_SendPO" name="Send Purchase Order">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_GR" name="Goods Receipt">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_Inv" name="Record Invoice Receipt">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_Pay" name="Pay Invoice">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_1" name="Invoice Settled">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_PR" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_PR" targetRef="Activity_PO" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_PO" targetRef="Activity_SendPO" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_SendPO" targetRef="Activity_GR" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_GR" targetRef="Activity_Inv" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_Inv" targetRef="Activity_Pay" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_Pay" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_Signavio_P2P">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="160" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_PR_di" bpmnElement="Activity_PR">
+        <dc:Bounds x="250" y="80" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_PO_di" bpmnElement="Activity_PO">
+        <dc:Bounds x="420" y="80" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_SendPO_di" bpmnElement="Activity_SendPO">
+        <dc:Bounds x="590" y="80" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_GR_di" bpmnElement="Activity_GR">
+        <dc:Bounds x="760" y="80" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Inv_di" bpmnElement="Activity_Inv">
+        <dc:Bounds x="930" y="80" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Pay_di" bpmnElement="Activity_Pay">
+        <dc:Bounds x="1100" y="80" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="1270" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,22 @@
+{
+  "scripts": {
+    "build_comparison_report.py": {
+      "arguments": {
+        "--input": { "type": "input_path", "required": true },
+        "--output": { "type": "output_path", "required": true }
+      }
+    },
+    "augment_bpmn.py": {
+      "arguments": {
+        "--input": { "type": "input_path", "required": true },
+        "--output": { "type": "output_path", "required": true }
+      }
+    },
+    "build_comparison_sheet.py": {
+      "arguments": {
+        "--input": { "type": "input_path", "required": true },
+        "--output": { "type": "output_path", "required": true }
+      }
+    }
+  }
+}
