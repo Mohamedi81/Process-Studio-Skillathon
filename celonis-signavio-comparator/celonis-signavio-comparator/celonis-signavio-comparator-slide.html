@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Celonis-Signavio-Comparator · Process Studio Skill</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#21406B;--navy-dk:#14315A;--ink:#0F1E3D;--ink-2:#575757;--ink-3:#8F8F8F;
+  --line:#C7C7C7;--line-2:#E6E6E6;--cool:#F4F4F4;--cream:#FBF1EA;--white:#ffffff;
+  --navy-08:rgba(33,64,107,.08);--navy-15:rgba(33,64,107,.15);--navy-30:rgba(33,64,107,.30);
+  --green:#198038;--green-bg:#D1FAE5;--amber:#D97706;--amber-bg:#FEF3C7;--red:#DA1E28;--red-bg:#FEE2E2;
+  --sh:0 2px 10px rgba(0,0,0,.05),0 8px 30px rgba(0,0,0,.04);--sh-h:0 10px 40px rgba(0,0,0,.10);
+  --ease:cubic-bezier(.16,1,.3,1);--r:6px;
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink);
+  background:#EBF1F7;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.slide-canvas{
+  width:100%;
+  max-width:1380px;
+  background:var(--white);
+  border-radius:12px;
+  box-shadow:0 20px 60px rgba(15,30,61,.12);
+  border:1px solid var(--line-2);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Header */
+.slide-header{
+  padding:28px 40px 20px;
+  background:linear-gradient(135deg,#ffffff 0%,#F4F7FB 100%);
+  border-bottom:1px solid var(--line-2);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--navy);
+  margin-bottom:6px;
+}
+.kicker::before{content:"";width:18px;height:2px;background:currentColor}
+
+.h1-title{
+  font-size:32px;
+  font-weight:800;
+  letter-spacing:-.03em;
+  color:var(--ink);
+  line-height:1.1;
+}
+.h1-title span{color:var(--navy)}
+
+.h1-sub{
+  font-size:15px;
+  font-weight:500;
+  color:var(--ink-2);
+  margin-top:4px;
+}
+
+.header-badges{
+  display:flex;
+  gap:8px;
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  font-weight:700;
+  padding:6px 14px;
+  border-radius:999px;
+  background:var(--navy-08);
+  color:var(--navy);
+  border:1px solid var(--navy-15);
+}
+
+/* Main Content Grid */
+.slide-body{
+  padding:28px 40px;
+  display:grid;
+  grid-template-columns:1.1fr 1.6fr 1.3fr;
+  gap:24px;
+}
+
+/* Column Cards */
+.col-card{
+  background:var(--cool);
+  border:1px solid var(--line-2);
+  border-radius:var(--r);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.col-card.accent{
+  background:linear-gradient(180deg,#F4F7FB 0%,#ffffff 100%);
+  border:1.5px solid var(--navy-30);
+  box-shadow:var(--sh);
+}
+
+.card-tag{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--navy);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.card-title{
+  font-size:17px;
+  font-weight:700;
+  color:var(--ink);
+  line-height:1.2;
+}
+
+/* Input Boxes */
+.in-box{
+  background:var(--white);
+  border:1px solid var(--line-2);
+  border-radius:6px;
+  padding:12px 14px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  transition:all .2s var(--ease);
+}
+.in-box:hover{
+  border-color:var(--navy);
+  transform:translateX(3px);
+  box-shadow:var(--sh);
+}
+.ibadge{
+  width:36px;
+  height:36px;
+  border-radius:8px;
+  background:var(--navy-08);
+  color:var(--navy);
+  display:grid;
+  place-items:center;
+  font-size:18px;
+  font-weight:700;
+  flex-shrink:0;
+}
+.in-box b{display:block;font-size:13px;color:var(--ink);font-weight:700}
+.in-box span{font-size:11.5px;color:var(--ink-2);line-height:1.35;display:block;margin-top:2px}
+
+/* Conformance Engine Middle Card */
+.delta-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.delta-stat{
+  background:var(--white);
+  border:1px solid var(--line-2);
+  border-radius:6px;
+  padding:12px;
+  text-align:center;
+}
+.delta-stat.red{border-top:3px solid var(--red)}
+.delta-stat.green{border-top:3px solid var(--green)}
+.delta-stat.amber{border-top:3px solid var(--amber)}
+.delta-stat.navy{border-top:3px solid var(--navy)}
+
+.stat-val{font-size:24px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-val.red{color:var(--red)}
+.stat-val.green{color:var(--green)}
+.stat-val.amber{color:var(--amber)}
+.stat-val.navy{color:var(--navy)}
+
+.stat-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--ink-2);letter-spacing:.04em}
+.stat-sub{font-size:10.5px;color:var(--ink-3);margin-top:2px}
+
+/* Process Comparison Mini Visual */
+.mini-flow{
+  background:var(--white);
+  border:1px solid var(--line-2);
+  border-radius:6px;
+  padding:14px;
+}
+.mini-flow svg{width:100%;height:auto;display:block}
+
+/* Deliverable List */
+.out-list{display:flex;flex-direction:column;gap:10px}
+.out-item{
+  background:var(--white);
+  border:1px solid var(--line-2);
+  border-radius:6px;
+  padding:12px 14px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  position:relative;
+  transition:all .2s var(--ease);
+}
+.out-item:hover{
+  border-color:var(--navy);
+  transform:translateY(-2px);
+  box-shadow:var(--sh);
+}
+.out-badge{
+  width:28px;
+  height:28px;
+  border-radius:6px;
+  background:var(--navy);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:12px;
+  font-weight:700;
+  flex-shrink:0;
+}
+.out-item b{font-size:12.5px;font-weight:700;color:var(--ink);display:block}
+.out-item span{font-size:11px;color:var(--ink-2);display:block;margin-top:2px}
+.out-tag{
+  font-size:9.5px;
+  font-weight:700;
+  padding:2px 6px;
+  border-radius:4px;
+  text-transform:uppercase;
+  margin-top:4px;
+  display:inline-block;
+}
+.tag-html{background:#eff6ff;color:#1d4ed8}
+.tag-bpmn{background:#f0fdf4;color:#15803d}
+.tag-xlsx{background:#fefce8;color:#a16207}
+
+/* Footer / Value Strip */
+.slide-footer{
+  padding:16px 40px;
+  background:#F4F7FB;
+  border-top:1px solid var(--line-2);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+.foot-col{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.foot-col .ic{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:var(--navy-08);
+  color:var(--navy);
+  display:grid;
+  place-items:center;
+  font-size:14px;
+  font-weight:bold;
+  flex-shrink:0;
+}
+.foot-col b{font-size:12px;color:var(--ink);display:block;font-weight:700}
+.foot-col span{font-size:11px;color:var(--ink-2);display:block}
+</style>
+</head>
+<body>
+
+<div class="slide-canvas">
+
+  <!-- Header -->
+  <header class="slide-header">
+    <div>
+      <div class="kicker">PROCESS STUDIO SKILLATHON &bull; BRING YOUR OWN SKILL (BYOS)</div>
+      <h1 class="h1-title">Celonis-Signavio-Comparator</h1>
+      <div class="h1-sub">Where <strong>Theory (Signavio BPMN)</strong> Meets <strong>Reality (Celonis Process Mining)</strong></div>
+    </div>
+    <div class="header-badges">
+      <span class="chip">Automated Conformance Checking</span>
+      <span class="chip">BPMN 2.0 Augmentation</span>
+    </div>
+  </header>
+
+  <!-- Body 3 Columns -->
+  <main class="slide-body">
+
+    <!-- Column 1: Input Ingestion -->
+    <div class="col-card">
+      <div class="card-tag">
+        <span>01 &bull; DUAL-SOURCE INGESTION</span>
+      </div>
+      <div class="card-title">Theory & Reality Inputs</div>
+
+      <!-- Input 1 -->
+      <div class="in-box">
+        <div class="ibadge">§</div>
+        <div>
+          <b>1. Signavio Context / BPMN</b>
+          <span>Uploaded BPMN 2.0 XML, direct file attachment, or auto-retrieved from connected Signavio context / workspace repository.</span>
+        </div>
+      </div>
+
+      <!-- Input 2 -->
+      <div class="in-box">
+        <div class="ibadge">⚡</div>
+        <div>
+          <b>2. Celonis Execution Reality</b>
+          <span>Transactional event logs, PQL query analytics, activity frequencies, waiting times, and bottleneck data.</span>
+        </div>
+      </div>
+
+      <!-- Input 3 -->
+      <div class="in-box">
+        <div class="ibadge">⚙</div>
+        <div>
+          <b>3. Zero-Code Data Contract</b>
+          <span>Model authors <code>comparison-spec.json</code> containing grounded metrics, transitions, and root causes.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Conformance Engine -->
+    <div class="col-card accent">
+      <div class="card-tag">
+        <span>02 &bull; COMPARISON ENGINE</span>
+      </div>
+      <div class="card-title">Theory vs. Reality Analysis</div>
+
+      <!-- 4 Delta Metrics -->
+      <div class="delta-grid">
+        <div class="delta-stat green">
+          <div class="stat-val green">68.2%</div>
+          <div class="stat-lbl">Happy Path Fitness</div>
+          <div class="stat-sub">Strict Signavio conformance</div>
+        </div>
+        <div class="delta-stat red">
+          <div class="stat-val red">31.8%</div>
+          <div class="stat-lbl">Rework & Exceptions</div>
+          <div class="stat-sub">+8.6 days execution delay</div>
+        </div>
+        <div class="delta-stat red">
+          <div class="stat-val red">7.0%</div>
+          <div class="stat-lbl">Maverick Invoicing</div>
+          <div class="stat-sub">77.9k PO-less invoices</div>
+        </div>
+        <div class="delta-stat amber">
+          <div class="stat-val amber">11.7 d</div>
+          <div class="stat-lbl">Invoice &rarr; Pay Lag</div>
+          <div class="stat-sub">10.6M case-days bottleneck</div>
+        </div>
+      </div>
+
+      <!-- Mini Process Conformance Diagram -->
+      <div class="mini-flow">
+        <svg viewBox="0 0 540 130" style="font-family:sans-serif;">
+          <!-- Happy Path -->
+          <rect x="10" y="20" width="80" height="36" rx="4" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5"/>
+          <text x="50" y="42" font-size="9" font-weight="bold" fill="#065F46" text-anchor="middle">Create PO</text>
+
+          <line x1="90" y1="38" x2="120" y2="38" stroke="#10B981" stroke-width="1.5"/>
+
+          <rect x="120" y="20" width="80" height="36" rx="4" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5"/>
+          <text x="160" y="42" font-size="9" font-weight="bold" fill="#065F46" text-anchor="middle">Send PO</text>
+
+          <!-- XOR 1 -->
+          <polygon points="220,38 230,26 240,38 230,50" fill="#fff" stroke="#64748B" stroke-width="1.5"/>
+          <text x="230" y="41" font-size="10" fill="#64748B" text-anchor="middle">×</text>
+
+          <line x1="200" y1="38" x2="220" y2="38" stroke="#10B981" stroke-width="1.5"/>
+          <line x1="240" y1="38" x2="310" y2="38" stroke="#10B981" stroke-width="1.5"/>
+
+          <!-- Happy Path Goods Receipt -->
+          <rect x="310" y="20" width="90" height="36" rx="4" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5"/>
+          <text x="355" y="42" font-size="9" font-weight="bold" fill="#065F46" text-anchor="middle">Goods Receipt</text>
+
+          <line x1="400" y1="38" x2="440" y2="38" stroke="#10B981" stroke-width="1.5"/>
+
+          <rect x="440" y="20" width="90" height="36" rx="4" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+          <text x="485" y="42" font-size="9" font-weight="bold" fill="#92400E" text-anchor="middle">Pay Invoice</text>
+
+          <!-- Shadow Path: Price Change (13.6%) -->
+          <path d="M 230 50 L 230 90 L 250 90" fill="none" stroke="#EF4444" stroke-width="1.5"/>
+          <rect x="250" y="74" width="110" height="32" rx="4" fill="#FEE2E2" stroke="#EF4444" stroke-width="1.5"/>
+          <text x="305" y="94" font-size="8.5" font-weight="bold" fill="#991B1B" text-anchor="middle">Price Change (13.6%)</text>
+          <path d="M 360 90 L 375 90 L 375 56" fill="none" stroke="#EF4444" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Column 3: Output Deliverables -->
+    <div class="col-card">
+      <div class="card-tag">
+        <span>03 &bull; DELIVERABLES</span>
+      </div>
+      <div class="card-title">4 Actionable Deliverables</div>
+
+      <div class="out-list">
+        <!-- Out 1 -->
+        <div class="out-item">
+          <div class="out-badge">1</div>
+          <div>
+            <b>Executive Comparison Report</b>
+            <span>Interactive HTML with KPI cards, deviation register, bottleneck charts & roadmap.</span>
+            <span class="out-tag tag-html">HTML Report</span>
+          </div>
+        </div>
+
+        <!-- Out 2 -->
+        <div class="out-item">
+          <div class="out-badge">2</div>
+          <div>
+            <b>BPMN Conformance Heatmap</b>
+            <span>Visual color-coded BPMN 2.0 diagram (Green/Amber/Red) with metric annotations.</span>
+            <span class="out-tag tag-bpmn">BPMN 2.0 XML</span>
+          </div>
+        </div>
+
+        <!-- Out 3 -->
+        <div class="out-item">
+          <div class="out-badge">3</div>
+          <div>
+            <b>Clean Signavio To-Be Model</b>
+            <span>Standardized model with swimlanes (Purchasing, Logistics, AP) for Signavio import.</span>
+            <span class="out-tag tag-bpmn">Signavio XML</span>
+          </div>
+        </div>
+
+        <!-- Out 4 -->
+        <div class="out-item">
+          <div class="out-badge">4</div>
+          <div>
+            <b>Review Matrix & Action Plan</b>
+            <span>Excel workbook with decision dropdowns (Approved as-is, Changes, Rejected).</span>
+            <span class="out-tag tag-xlsx">Excel (.XLSX)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer Value Strip -->
+  <footer class="slide-footer">
+    <div class="foot-col">
+      <div class="ic">✓</div>
+      <div>
+        <b>Reconciles Theory & Reality</b>
+        <span>Bridges designed SOPs with event reality</span>
+      </div>
+    </div>
+    <div class="foot-col">
+      <div class="ic">⚡</div>
+      <div>
+        <b>Uncovers Shadow Work</b>
+        <span>Reveals hidden rework & maverick buying</span>
+      </div>
+    </div>
+    <div class="foot-col">
+      <div class="ic">↻</div>
+      <div>
+        <b>Signavio Round-Trip Ready</b>
+        <span>Direct production re-import to Signavio</span>
+      </div>
+    </div>
+    <div class="foot-col">
+      <div class="ic">⚖</div>
+      <div>
+        <b>Governed Decision Making</b>
+        <span>Structured workshop sign-off sheet</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>
