@@ -1,6 +1,6 @@
 ---
 name: celonis-signavio-comparator
-description: Compares a target/prescribed BPMN process model (imported from Signavio or uploaded BPMN 2.0 XML) against actual execution reality mined from Celonis event logs. Identifies conformance deviations (undocumented shadow steps, skipped activities, out-of-sequence/maverick transitions, rework loops, SLA latency bottlenecks). Produces an executive HTML comparison report, an Excel comparison matrix, a visual BPMN conformance heatmap, and a clean standardized To-Be BPMN 2.0 model with swimlanes ready for SAP Signavio import. Use when the user wants to compare theory with reality, perform conformance checking, or augment BPMN models with process mining findings.
+description: Compares a target/prescribed BPMN process model (loaded from connected Signavio context, imported from workspace BPMN files, or uploaded directly) against actual execution reality mined from Celonis event logs. Identifies conformance deviations (undocumented shadow steps, skipped activities, out-of-sequence/maverick transitions, rework loops, SLA latency bottlenecks). Produces an executive HTML comparison report, an Excel comparison matrix, a visual BPMN conformance heatmap, and a clean standardized To-Be BPMN 2.0 model with swimlanes ready for SAP Signavio import. Use when the user wants to compare theory with reality, perform conformance checking, or augment BPMN models with process mining findings.
 allowed-tools: run_skill_script read_wiki_page write_temp_file read_temp_file save_output_text save_output_file
 ---
 
@@ -9,7 +9,10 @@ allowed-tools: run_skill_script read_wiki_page write_temp_file read_temp_file sa
 Compares prescriptive BPMN process models (Theory / Signavio / uploaded BPMN 2.0) against actual empirical process execution data mined from Celonis (Reality / Event Logs).
 
 Inputs:
-- **Theory Process Model**: A Signavio BPMN export, uploaded BPMN 2.0 XML file, or text description of the prescribed standard operating procedure (SOP).
+- **Theory Process Model (any ONE of the following options)**:
+  - **Option 1: Direct File Attachment**: An uploaded `.bpmn` or `.xml` BPMN 2.0 file attached directly to the prompt.
+  - **Option 2: Signavio Context / Workspace Repository (when BPMN is not attached)**: If no BPMN file is attached in chat, look for and load the process model from the **connected Signavio context**, project wiki pages (using `read_wiki_page`), or workspace repository containing exported Signavio BPMN files.
+  - **Option 3: Prescribed SOP / Text Description**: A written standard operating procedure (SOP) or process blueprint defining the prescribed happy path, decision gates, and swimlane roles.
 - **Reality Process Data**: Celonis process mining analysis, event log summary, PQL query findings, or bottleneck report.
 
 Outputs (generated every run):
@@ -21,7 +24,7 @@ Outputs (generated every run):
 Never write code at runtime. You author one structured `comparison-spec.json` file, and bundled scripts render the deliverables.
 
 ## Do Not Ask Questions
-Work directly from the provided documents. Use these standard defaults and report them in your delivery summary:
+Work directly from the provided documents. If a BPMN file is not attached, automatically check the Signavio context or wiki pages. Use these standard defaults and report them in your delivery summary:
 - Report Title: The process name from the source plus " — Theory vs. Reality Conformance Report".
 - SLA Default: If the BPMN model lacks explicit duration SLAs, use 15.0 days as the default baseline SLA for end-to-end throughput.
 - Conformance Score: Derived directly from the Celonis happy-path case share percentage.
@@ -30,8 +33,12 @@ Work directly from the provided documents. Use these standard defaults and repor
 ## Steps
 
 1. **Read & Extract**:
-   - Ingest the Signavio / BPMN source (prescribed tasks, sequence flows, gateway logic, swimlane roles).
-   - Ingest the Celonis source (case volume, event counts, activity frequency, transition waiting times, rework loops, maverick buying / retro-PO rates).
+   - **Ingest Theory (Signavio / BPMN)**:
+     - Check for directly attached BPMN XML files.
+     - If no BPMN file is attached, inspect the **Signavio context** or use `read_wiki_page` to retrieve the Signavio process model from the project repository.
+     - Extract prescribed activities, sequence flows, decision gateway logic, and swimlane roles.
+   - **Ingest Reality (Celonis)**:
+     - Ingest case volume, event counts, activity frequency, transition waiting times, rework loops, and maverick buying / retro-PO rates.
 2. **Analyze Differences (Theory vs Reality)**:
    - Identify **Matched Activities**: Tasks existing in both Signavio design and Celonis execution.
    - Identify **Undocumented Shadow Steps**: Activities occurring in Celonis that are missing in Signavio (e.g., Price Changes, Payment Block/Unblock, Reversals, Dunning).
