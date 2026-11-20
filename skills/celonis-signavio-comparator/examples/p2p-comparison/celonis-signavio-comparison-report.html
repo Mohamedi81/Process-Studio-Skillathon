@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase-to-Pay (P2P) — Theory (Signavio) vs Reality (Celonis) Comparison</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-subtle: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --brand: #2563eb;
+      --brand-dark: #1e40af;
+      --green: #10b981;
+      --green-bg: #d1fae5;
+      --amber: #f59e0b;
+      --amber-bg: #fef3c7;
+      --red: #ef4444;
+      --red-bg: #fee2e2;
+      --purple: #8b5cf6;
+      --purple-bg: #ede9fe;
+      --teal: #0d9488;
+      --teal-bg: #ccfbf1;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Header */
+    .report-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+    }
+    .header-kicker {
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: #93c5fd;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .report-title {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .header-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: #bfdbfe;
+    }
+    .header-meta-item strong { color: #ffffff; }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .kpi-subtext {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .val-green { color: var(--green); }
+    .val-amber { color: var(--amber); }
+    .val-red { color: var(--red); }
+    .val-brand { color: var(--brand); }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fafafa;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .card-body {
+      padding: 24px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .badge-green { background: var(--green-bg); color: #065f46; }
+    .badge-amber { background: var(--amber-bg); color: #92400e; }
+    .badge-red { background: var(--red-bg); color: #991b1b; }
+    .badge-purple { background: var(--purple-bg); color: #5b21b6; }
+    .badge-teal { background: var(--teal-bg); color: #115e59; }
+    .badge-grey { background: #f1f5f9; color: #475569; }
+    .badge-outline { border: 1px solid var(--border); background: #ffffff; color: var(--text); }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th {
+      background: var(--surface-subtle);
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Utilities */
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .text-muted { color: var(--text-muted); }
+    .text-danger { color: var(--red); }
+    .text-brand { color: var(--brand); }
+    .text-xs { font-size: 11px; }
+    .text-sm { font-size: 13px; }
+    .text-lg { font-size: 16px; }
+    .mt-1 { margin-top: 4px; }
+    .mb-3 { margin-bottom: 12px; }
+    .p-3 { padding: 12px; }
+    .rounded { border-radius: 6px; }
+    .bg-surface { background: var(--surface-subtle); }
+    .uppercase { text-transform: uppercase; }
+    .grid { display: grid; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .gap-2 { gap: 8px; }
+
+    .icon-check { color: var(--green); font-weight: bold; }
+    .icon-cross { color: var(--red); font-weight: bold; }
+
+    .executive-callout {
+      background: #eff6ff;
+      border-left: 4px solid var(--brand);
+      padding: 18px 20px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+    .executive-callout h4 {
+      color: var(--brand-dark);
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    .executive-callout ul {
+      padding-left: 20px;
+      color: #1e3a8a;
+      font-size: 13px;
+    }
+    .executive-callout li {
+      margin-bottom: 4px;
+    }
+
+    .deviation-card {
+      margin-bottom: 16px;
+    }
+    .recommendation-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    /* Visual Process Flow Diagram */
+    .flow-diagram-container {
+      background: #ffffff;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="report-header">
+    <div class="header-kicker">Process Conformance & Reconciliation Report</div>
+    <h1 class="report-title">Purchase-to-Pay (P2P): Theory vs. Reality Analysis</h1>
+    <div class="header-meta">
+      <div class="header-meta-item">Theory Model: <strong>Standard P2P Process v2.4 (Signavio)</strong></div>
+      <div class="header-meta-item">Reality Source: <strong>P2P Model (_CEL_P2P_ACTIVITIES)</strong></div>
+      <div class="header-meta-item">Timeframe: <strong>2016-01-01 to 2017-01-06</strong></div>
+      <div class="header-meta-item">Date: <strong>2026-11-20</strong></div>
+    </div>
+  </header>
+
+  <!-- Executive Summary Callout -->
+  <div class="executive-callout">
+    <h4>Executive Finding</h4>
+    <p class="font-semibold mb-3">Only 68.2% of cases follow the Signavio happy path (27.9 days); 31.8% incur rework and exception loops taking 36.5 days (+8.6 days longer).</p>
+    <ul>
+      <li>Major shadow activities discovered: Post-PO Price Changes (13.6% of cases, +8.8 days delay) and Payment Blocks (2.3% of cases, +11.4 days delay) are not modeled in Signavio.</li><li>Invoice Receipt -&gt; Payment wait averages 11.7 days (10.6M case-days total), representing the largest throughput bottleneck.</li><li>Maverick Buying: 77,964 cases (7.0%) record an invoice before the PO item is created in ERP, violating procurement controls.</li><li>77,156 PO items (6.9%) end in rejection, deletion, or block due to late demand verification.</li>
+    </ul>
+  </div>
+
+  <!-- KPI Scorecard -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Conformance Rate (Happy Path)</div>
+      <div class="kpi-value val-brand">68.2%</div>
+      <div class="kpi-subtext">1,116,080 total cases analyzed</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Rework & Exception Share</div>
+      <div class="kpi-value val-red">31.8%</div>
+      <div class="kpi-subtext">354,913 cases with friction/rework</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Actual vs SLA Throughput</div>
+      <div class="kpi-value val-amber">31.1 <span style="font-size: 16px; font-weight: normal;">days</span></div>
+      <div class="kpi-subtext">Modeled SLA: 15.0 days (+16.1 d delta)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Maverick Buying Rate</div>
+      <div class="kpi-value val-red">7.0%</div>
+      <div class="kpi-subtext">Invoices received prior to PO dispatch</div>
+    </div>
+  </div>
+
+  <!-- Visual Process Comparison Flow Diagram -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Process Architecture: Prescribed Signavio Path vs Reality Findings</h2>
+      <div class="text-xs text-muted">BPMN Happy Path with Empirical Reality Overlays</div>
+    </div>
+    <div class="card-body">
+      <div class="flow-diagram-container">
+        <svg viewBox="0 0 1060 280" style="width: 100%; height: auto; font-family: sans-serif;">
+          <!-- Swimlane / Stage Backgrounds -->
+          <rect x="10" y="20" width="1040" height="240" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="4" />
+          <text x="25" y="42" font-size="12" font-weight="bold" fill="#64748b">END-TO-END PROCESS CONFORMANCE MAP</text>
+
+          <!-- Standard Flow Boxes (Signavio Happy Path) -->
+          <!-- Step 1: Create PR -->
+          <rect x="40" y="70" width="120" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2" />
+          <text x="100" y="95" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">Create PR</text>
+          <text x="100" y="110" font-size="9" fill="#047857" text-anchor="middle">78.9% cases</text>
+
+          <!-- Arrow 1 -> 2 -->
+          <path d="M 160 95 L 200 95" fill="none" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-green)" />
+
+          <!-- Step 2: Create PO -->
+          <rect x="200" y="70" width="120" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2" />
+          <text x="260" y="95" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">Create PO</text>
+          <text x="260" y="110" font-size="9" fill="#047857" text-anchor="middle">100% (1.11M)</text>
+
+          <!-- Arrow 2 -> 3 -->
+          <path d="M 320 95 L 360 95" fill="none" stroke="#10b981" stroke-width="2" />
+
+          <!-- Step 3: Send PO -->
+          <rect x="360" y="70" width="120" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2" />
+          <text x="420" y="95" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">Send PO</text>
+          <text x="420" y="110" font-size="9" fill="#047857" text-anchor="middle">97.6% (1.09M)</text>
+
+          <!-- Arrow 3 -> 4 -->
+          <path d="M 480 95 L 530 95" fill="none" stroke="#10b981" stroke-width="2" />
+          <text x="505" y="88" font-size="9" fill="#64748b" text-anchor="middle">8.1 days</text>
+
+          <!-- Step 4: Goods Receipt -->
+          <rect x="530" y="70" width="130" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2" />
+          <text x="595" y="95" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">Goods Receipt</text>
+          <text x="595" y="110" font-size="9" fill="#047857" text-anchor="middle">92.6% (1.03M)</text>
+
+          <!-- Arrow 4 -> 5 -->
+          <path d="M 660 95 L 710 95" fill="none" stroke="#10b981" stroke-width="2" />
+          <text x="685" y="88" font-size="9" fill="#64748b" text-anchor="middle">5.8 days</text>
+
+          <!-- Step 5: Record Invoice -->
+          <rect x="710" y="70" width="130" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2" />
+          <text x="775" y="95" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">Record Invoice</text>
+          <text x="775" y="110" font-size="9" fill="#047857" text-anchor="middle">91.8% (1.02M)</text>
+
+          <!-- Arrow 5 -> 6 (BOTTLENECK) -->
+          <path d="M 840 95 L 890 95" fill="none" stroke="#f59e0b" stroke-width="3" />
+          <text x="865" y="85" font-size="10" font-weight="bold" fill="#b45309" text-anchor="middle">11.7 days!</text>
+
+          <!-- Step 6: Pay Invoice -->
+          <rect x="890" y="70" width="130" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2" />
+          <text x="955" y="95" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">Pay Invoice</text>
+          <text x="955" y="110" font-size="9" fill="#047857" text-anchor="middle">90.8% (1.01M)</text>
+
+          <!-- SHADOW PATH 1: Price Change Loop (Discovered in Celonis) -->
+          <path d="M 420 120 L 420 170 L 470 170" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="3" />
+          <rect x="470" y="145" width="130" height="50" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="2" />
+          <text x="535" y="168" font-size="11" font-weight="bold" fill="#991b1b" text-anchor="middle">Price Change</text>
+          <text x="535" y="183" font-size="9" fill="#dc2626" text-anchor="middle">13.6% (+8.8 days delay)</text>
+          <path d="M 600 170 L 630 170 L 630 120" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="3" />
+
+          <!-- SHADOW PATH 2: Payment Block & Release Loop -->
+          <path d="M 775 120 L 775 220 L 810 220" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="3" />
+          <rect x="810" y="195" width="140" height="50" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="2" />
+          <text x="880" y="218" font-size="11" font-weight="bold" fill="#991b1b" text-anchor="middle">Payment Block/Release</text>
+          <text x="880" y="233" font-size="9" fill="#dc2626" text-anchor="middle">2.3% (+11.4 days delay)</text>
+          <path d="M 950 220 L 980 220 L 980 120" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="3" />
+
+          <!-- SHADOW PATH 3: Maverick Buying (Invoice before PO) -->
+          <path d="M 730 70 L 730 40 L 260 40 L 260 70" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="4" />
+          <text x="495" y="34" font-size="10" font-weight="bold" fill="#dc2626" text-anchor="middle">Maverick Invoicing (7.0% of cases bypass PO initiation)</text>
+        </svg>
+      </div>
+      <div class="grid grid-2 gap-2 text-xs text-muted">
+        <div><span class="badge badge-green">Green Solid</span> = Signavio Prescribed Happy Path</div>
+        <div><span class="badge badge-red">Red Dashed</span> = Celonis-Discovered Reality Deviations & Shadow Loops</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Conformance Matrix -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Activity Conformance Matrix (9 Total Activities)</h2>
+      <div>
+        <span class="badge badge-green">6 Matched</span>
+        <span class="badge badge-red">3 Undocumented Shadow</span>
+        <span class="badge badge-grey">0 Skipped</span>
+      </div>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity Name</th>
+            <th>Conformance Status</th>
+            <th class="text-center">Signavio (Theory)</th>
+            <th class="text-center">Celonis (Reality)</th>
+            <th class="text-right">Event Count</th>
+            <th class="text-right">Case Share %</th>
+            <th class="text-right">Avg Wait / Loop</th>
+            <th>Conformance Notes & Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        <tr>
+          <td><strong>Create Purchase Requisition</strong><div class="text-xs text-muted">DE: Lege BANF Position an</div></td>
+          <td><span class="badge badge-green">Matched (Theory & Reality)</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">880,700</td>
+          <td class="text-right font-semibold">78.9%</td>
+          <td class="text-right">2.0 d</td>
+          <td class="text-sm">Prescribed initial step. 21.1% of PO items bypass PR creation directly.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Create PO item</strong><div class="text-xs text-muted">DE: Lege Bestellposition an</div></td>
+          <td><span class="badge badge-green">Matched (Theory & Reality)</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">1,116,080</td>
+          <td class="text-right font-semibold">100.0%</td>
+          <td class="text-right">—</td>
+          <td class="text-sm">Core transaction entity (EKPO). 100% case presence.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Send Purchase Order</strong><div class="text-xs text-muted">DE: Sende Bestellung</div></td>
+          <td><span class="badge badge-green">Matched (Theory & Reality)</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">1,089,804</td>
+          <td class="text-right font-semibold">97.6%</td>
+          <td class="text-right">2.0 d</td>
+          <td class="text-sm">High conformance (97.6%). Dispatches PO to vendor.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Change Price (Post-PO)</strong><div class="text-xs text-muted">DE: Aendere Preis</div></td>
+          <td><span class="badge badge-red">Shadow Activity (Undocumented)</span></td>
+          <td class="text-center"><span class="icon-cross">✗ No</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">152,092</td>
+          <td class="text-right font-semibold">13.6%</td>
+          <td class="text-right">10.0 d</td>
+          <td class="text-sm">Undocumented shadow rework in Signavio. Occurs ~7 days after PO send; adds +8.8 days delay.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Receive Order Confirmation</strong><div class="text-xs text-muted">DE: Erhalte Auftragsbestaetigung</div></td>
+          <td><span class="badge badge-red">Shadow Activity (Undocumented)</span></td>
+          <td class="text-center"><span class="icon-cross">✗ No</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">104,216</td>
+          <td class="text-right font-semibold">9.3%</td>
+          <td class="text-right">6.3 d</td>
+          <td class="text-sm">Vendor order confirmation logging; trigger for reminder notices in 52.1k cases.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Goods Receipt</strong><div class="text-xs text-muted">DE: Wareneingang</div></td>
+          <td><span class="badge badge-green">Matched (Theory & Reality)</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">1,033,604</td>
+          <td class="text-right font-semibold">92.6%</td>
+          <td class="text-right">8.1 d</td>
+          <td class="text-sm">Key physical logistics milestone. Vendor delivery lead averages 8.1 days.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Record Invoice Receipt</strong><div class="text-xs text-muted">DE: Erfasse Rechnungseingang</div></td>
+          <td><span class="badge badge-green">Matched (Theory & Reality)</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">1,025,036</td>
+          <td class="text-right font-semibold">91.8%</td>
+          <td class="text-right">5.8 d</td>
+          <td class="text-sm">5.8 days posting lag after Goods Receipt due to manual entry.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Set / Remove Payment Block</strong><div class="text-xs text-muted">DE: Setze / Entferne Zahlsperre</div></td>
+          <td><span class="badge badge-red">Shadow Activity (Undocumented)</span></td>
+          <td class="text-center"><span class="icon-cross">✗ No</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">50,736</td>
+          <td class="text-right font-semibold">2.3%</td>
+          <td class="text-right">17.8 d</td>
+          <td class="text-sm">Undocumented exception loop. Set -&gt; remove block takes 5.0 days, then release -&gt; payment takes 12.8 days.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Pay Invoice</strong><div class="text-xs text-muted">DE: Zahle Rechnung</div></td>
+          <td><span class="badge badge-green">Matched (Theory & Reality)</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-center"><span class="icon-check">✓ Yes</span></td>
+          <td class="text-right">1,013,548</td>
+          <td class="text-right font-semibold">90.8%</td>
+          <td class="text-right">11.7 d</td>
+          <td class="text-sm">Terminal settlement step. 11.7 days wait from invoice receipt.</td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Transition & Bottleneck Latency -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Transition & Bottleneck Latency Analysis</h2>
+      <div class="text-xs text-muted">Modeled Waiting Time SLA vs Actual Execution Delay</div>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Transition (Source &rarr; Target)</th>
+            <th>Flow Category</th>
+            <th class="text-right">Volume</th>
+            <th class="text-right">Actual Wait</th>
+            <th class="text-right">Signavio SLA</th>
+            <th class="text-right">SLA Delta</th>
+            <th>Operational Impact & Root Cause</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        <tr>
+          <td><strong>Record Invoice Receipt</strong> &rarr; <strong>Pay Invoice</strong></td>
+          <td><span class="badge badge-red">Matched Delayed</span></td>
+          <td class="text-right">905,259</td>
+          <td class="text-right font-semibold">11.7 d</td>
+          <td class="text-right text-muted">2.0 d</td>
+          <td class="text-right text-danger font-semibold">+9.7 d</td>
+          <td class="text-sm">Largest waiting time block (10.6M case-days). Driven by batch payment runs and payment term holds.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Send Purchase Order</strong> &rarr; <strong>Goods Receipt</strong></td>
+          <td><span class="badge badge-blue">Matched</span></td>
+          <td class="text-right">698,576</td>
+          <td class="text-right font-semibold">8.1 d</td>
+          <td class="text-right text-muted">5.0 d</td>
+          <td class="text-right text-danger font-semibold">+3.1 d</td>
+          <td class="text-sm">Supplier delivery fulfillment cycle time.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Goods Receipt</strong> &rarr; <strong>Record Invoice Receipt</strong></td>
+          <td><span class="badge badge-amber">Matched</span></td>
+          <td class="text-right">940,207</td>
+          <td class="text-right font-semibold">5.8 d</td>
+          <td class="text-right text-muted">1.0 d</td>
+          <td class="text-right text-danger font-semibold">+4.8 d</td>
+          <td class="text-sm">Invoice posting delay post delivery due to paper/manual intake.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Send Purchase Order</strong> &rarr; <strong>Change Price (Post-PO)</strong></td>
+          <td><span class="badge badge-amber">Shadow Branch</span></td>
+          <td class="text-right">151,584</td>
+          <td class="text-right font-semibold">7.0 d</td>
+          <td class="text-right text-muted">—</td>
+          <td class="text-right text-danger font-semibold">—</td>
+          <td class="text-sm">PO dispatched with incorrect contract or catalog price.</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Record Invoice Receipt</strong> &rarr; <strong>Create PO item</strong></td>
+          <td><span class="badge badge-red">Out Of Sequence Maverick</span></td>
+          <td class="text-right">77,964</td>
+          <td class="text-right font-semibold">2.0 d</td>
+          <td class="text-right text-muted">—</td>
+          <td class="text-right text-danger font-semibold">—</td>
+          <td class="text-sm">Maverick buying / retroactive PO creation after vendor invoice arrival.</td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Identified Deviations & Friction Points -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Detailed Deviation Register & Root Causes (4 Findings)</h2>
+    </div>
+    <div class="card-body">
+      
+        <div class="card deviation-card">
+          <div class="card-header">
+            <div>
+              <span class="badge badge-outline">DEV-01</span>
+              <span class="badge badge-red">HIGH</span>
+              <h3 class="card-title mt-1">Post-PO Price Modification</h3>
+              <div class="text-xs text-muted">Undocumented Shadow Rework</div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-bold text-danger">152,092 cases (13.6%)</div>
+              <div class="text-xs text-muted">Delay Penalty: +8.8 days</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="text-sm mb-3">152,092 items (13.6%) have prices modified ~7 days after PO dispatch, adding +8.8 days of delay.</p>
+            <div class="grid grid-2 gap-2 mb-3 bg-surface p-3 rounded">
+              <div><strong class="text-xs text-muted uppercase">Cost / Efficiency Impact:</strong> <span class="text-sm font-semibold">$450,000 / year in manual touches and renegotiation</span></div>
+              <div><strong class="text-xs text-muted uppercase">Reconciliation Strategy:</strong> <span class="badge badge-purple">Augment Bpmn And Fix</span></div>
+            </div>
+            <div class="recommendation-box">
+              <strong class="text-xs text-brand uppercase">Recommended Fix:</strong>
+              <p class="text-sm mt-1">Sync contract &amp; info-record master data before PO release; model price tolerance gateway in Signavio BPMN.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card deviation-card">
+          <div class="card-header">
+            <div>
+              <span class="badge badge-outline">DEV-02</span>
+              <span class="badge badge-red">CRITICAL</span>
+              <h3 class="card-title mt-1">Maverick Buying (Invoice Before PO)</h3>
+              <div class="text-xs text-muted">Out Of Sequence Maverick</div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-bold text-danger">77,964 cases (7.0%)</div>
+              <div class="text-xs text-muted">Delay Penalty: +2.0 days</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="text-sm mb-3">77,964 items (7.0%) receive an invoice before the PO item is created in ERP.</p>
+            <div class="grid grid-2 gap-2 mb-3 bg-surface p-3 rounded">
+              <div><strong class="text-xs text-muted uppercase">Cost / Efficiency Impact:</strong> <span class="text-sm font-semibold">High compliance exposure, loss of contracted discounts</span></div>
+              <div><strong class="text-xs text-muted uppercase">Reconciliation Strategy:</strong> <span class="badge badge-teal">Operational Enforcement</span></div>
+            </div>
+            <div class="recommendation-box">
+              <strong class="text-xs text-brand uppercase">Recommended Fix:</strong>
+              <p class="text-sm mt-1">Enforce strict No-PO-No-Pay ERP controls and route unmatched invoices to guided retro-PO approval.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card deviation-card">
+          <div class="card-header">
+            <div>
+              <span class="badge badge-outline">DEV-03</span>
+              <span class="badge badge-red">HIGH</span>
+              <h3 class="card-title mt-1">Payment Block &amp; Release Loop</h3>
+              <div class="text-xs text-muted">Undocumented Exception Loop</div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-bold text-danger">25,468 cases (2.3%)</div>
+              <div class="text-xs text-muted">Delay Penalty: +11.4 days</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="text-sm mb-3">25,468 items (2.3%) incur payment blocks, adding +11.4 days (42.2 vs 30.7 days). Release to payment takes 12.8 days.</p>
+            <div class="grid grid-2 gap-2 mb-3 bg-surface p-3 rounded">
+              <div><strong class="text-xs text-muted uppercase">Cost / Efficiency Impact:</strong> <span class="text-sm font-semibold">Lost early payment cash discounts ($320,000)</span></div>
+              <div><strong class="text-xs text-muted uppercase">Reconciliation Strategy:</strong> <span class="badge badge-teal">Operational Automation</span></div>
+            </div>
+            <div class="recommendation-box">
+              <strong class="text-xs text-brand uppercase">Recommended Fix:</strong>
+              <p class="text-sm mt-1">Implement automated 3-way matching with tolerance auto-release and same-day payment scheduling.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card deviation-card">
+          <div class="card-header">
+            <div>
+              <span class="badge badge-outline">DEV-04</span>
+              <span class="badge badge-red">CRITICAL</span>
+              <h3 class="card-title mt-1">Invoice-to-Payment Queue Latency</h3>
+              <div class="text-xs text-muted">Latency Bottleneck</div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-bold text-danger">905,259 cases (81.1%)</div>
+              <div class="text-xs text-muted">Delay Penalty: +9.7 days</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="text-sm mb-3">905,259 transitions wait an average of 11.7 days between invoice posting and payment settlement.</p>
+            <div class="grid grid-2 gap-2 mb-3 bg-surface p-3 rounded">
+              <div><strong class="text-xs text-muted uppercase">Cost / Efficiency Impact:</strong> <span class="text-sm font-semibold">10.6 Million case-days of process latency</span></div>
+              <div><strong class="text-xs text-muted uppercase">Reconciliation Strategy:</strong> <span class="badge badge-teal">Operational Fix</span></div>
+            </div>
+            <div class="recommendation-box">
+              <strong class="text-xs text-brand uppercase">Recommended Fix:</strong>
+              <p class="text-sm mt-1">Calibrate due-date dynamic payment scheduling and eliminate batch payment holding queues.</p>
+            </div>
+          </div>
+        </div>
+        
+    </div>
+  </div>
+
+  <!-- Model & Operational Reconciliation Plan -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Reconciliation Plan: Model Augmentation vs Operational Enforcement</h2>
+      <div class="text-xs text-muted">Closing the Gap between Theory and Reality</div>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Action ID</th>
+            <th>Reconciliation Type</th>
+            <th>Target Element</th>
+            <th>Action Description</th>
+            <th>Accountable Owner</th>
+            <th>Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        <tr>
+          <td><span class="badge badge-outline">REC-01</span></td>
+          <td><span class="badge badge-purple">Augment Bpmn</span></td>
+          <td><strong>Post-PO Price Modification Gateway</strong></td>
+          <td class="text-sm">Insert exclusive XOR gateway after &#x27;Send PO&#x27; to model legitimate supplier price confirmation loop with 4-eyes approval.</td>
+          <td>BPM Center of Excellence &amp; Lead Architect</td>
+          <td><span class="badge badge-red">High</span></td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge badge-outline">REC-02</span></td>
+          <td><span class="badge badge-teal">Enforce Reality</span></td>
+          <td><strong>No-PO-No-Pay Enforcement Gate</strong></td>
+          <td class="text-sm">Block invoices in ERP without prior PO reference to eliminate 77.9k maverick buying cases.</td>
+          <td>Finance Operations &amp; Procurement</td>
+          <td><span class="badge badge-red">Critical</span></td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge badge-outline">REC-03</span></td>
+          <td><span class="badge badge-purple">Augment Bpmn</span></td>
+          <td><strong>Payment Block &amp; Auto-Release Sub-process</strong></td>
+          <td class="text-sm">Model 3-way match tolerance check and payment block handling sub-process in Signavio.</td>
+          <td>BPM Center of Excellence</td>
+          <td><span class="badge badge-amber">Medium</span></td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge badge-outline">REC-04</span></td>
+          <td><span class="badge badge-teal">Enforce Reality</span></td>
+          <td><strong>Automated 3-Way Match &amp; Release Agent</strong></td>
+          <td class="text-sm">Deploy automated match bot for invoices within +/- 2% price/quantity tolerance to release payment blocks immediately.</td>
+          <td>Accounts Payable Automation Team</td>
+          <td><span class="badge badge-red">High</span></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Generated by <strong>Celonis-Signavio-Comparator</strong> &bull; Process Studio BYOS Engine &bull; Conformance & BPMN Augmentation Suite
+  </footer>
+
+</div>
+
+</body>
+</html>
